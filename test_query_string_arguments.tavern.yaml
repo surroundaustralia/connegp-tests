@@ -1,0 +1,99 @@
+---
+# R.2.1.a
+#   A profile that a resource representation conforms to is indicated by token
+#   which MUST be appended to the resource's URI as a Query String Argument.
+
+# R.2.1.c - UNTESTED
+#   [the] token MUST be mappable to a URI within one particular client/server session
+
+# R.2.2.a
+#   To conform to the "QSA Functional Profile", the QSA key _profile MUST be used to
+#   indicate a profile token
+
+# R.2.3.c
+#   The server SHOULD represent the alternate profiles information in the HTTP header
+#   of the response, as per the HTTP Headers functional profile (using a Link header)
+
+# R.2.3.d
+#   [the server] MAY also represent the information in the response body
+#   in place of the default profile representation of a resource
+
+# R.2.3.e
+#   Where a server does provide alternate profiles information in an HTTP body,
+#   the server MAY allow clients to negotiate for particular Media Types of the
+#   response by using the same Media Type negotiation method used for the get resource
+#   by profile function
+
+# R.2.4.b
+#   They MAY do so using HTTP Link headers, as per the HTTP Headers functional
+#   profile, or they MAY use other approaches.
+
+# R.2.4.c
+#   They may do so via HTTP body content, perhaps in HTML or other data models/formats
+
+test_name: "Alternative profile 'token' appended to the URI as a Query String Argument"
+stages:
+  - name: "Check the requested alternative profile(s) are visible"
+    request:
+      url: "{tavern.env_vars.HOST}/?_profile=alt"
+      method: GET
+    response:
+      status_code: 200
+      verify_response_with:
+        function: query_string_arguments:check_existance_of_alternatives
+        extra_kwargs:
+          profiles:
+            - 'https://www.w3.org/TR/vocab-dcat/'
+            - 'https://schema.org'
+            - 'http://www.w3.org/ns/dx/conneg/altr'
+          encodings:
+            - 'text/html'
+            - 'text/turtle'
+            - 'application/rdf+xml'
+            - 'application/ld+json'
+            - 'application/n-triples'
+      #save:
+      #  $ext:
+      #    function: query_string_arguments:extract_qsa_urls
+
+# TEST? "Check the requested alternative profile(s) are accessible"
+---
+# R.2.2.b
+#   The key _mediatype SHOULD be used to indicate a resource representation's Media Type
+
+# R.2.2.c - Client side, UNTESTED
+#   Tokens registered at IANA's Media Types list SHOULD be used as tokens for Media Type identifiers
+
+# R.2.3.a
+#   The QSA key/value pair _profile=alt SHOULD be supported by the server to allow
+#   a client to make a list profiles request
+
+# R.2.3.b
+#   The server's response to a list profiles request SHOULD be to present a list
+#   of all profiles that it supports representations of the resource for and optionally
+#   also supported Media Types for those representations.
+
+# R.2.4.a
+#   Implementations of this specification according to the QSA Functional Profiles
+#   MUST communicate their alternate representations information as per
+#   the Alternate Representations Data Model
+
+test_name: "Request Alternative profile as JSON using QSA"
+stages:
+  - name: "Retrive alternative profiles as JSON"
+    request:
+      url: "{tavern.env_vars.HOST}/?_profile=alt&_mediatype=application/json"
+      method: GET
+    response:
+      status_code: 200
+
+
+# R.2.1.b - UNTESTED
+#   Resource URLs for which QSA-based profile negotiation is taking place
+#   SHOULD NOT themselves be QSA values of other resource URIs in any QSA-based system.
+
+# R.2.1.d - UNTESTED
+#   Additional aspects of content negotiation MAY be included in such URIs by the use
+#   of additional QSA or by any other techniques (for example HTTP headers) but,
+#   if they are, they MUST NOT change the actions of the request for content negotiation by profile.
+

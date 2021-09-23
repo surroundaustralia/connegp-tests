@@ -1,0 +1,71 @@
+---
+# R.1.1.a
+#   A server implementing content negotiation by profile SHOULD return
+#   an HTTP Link header containing information about the default and any
+#   alternate representations of that resource including profiles they conform to.
+
+# R.1.1.b
+#   The default representation – the one that will be returned when no specific
+#   representation is requested – SHOULD be identified by rel="canonical", other
+#   representations by rel="alternate"
+
+test_name: "R.1.1.a,b: HTTP Header 'link' is present and conformant"
+stages:
+  - name: "Check link header in response"
+    request:
+      url: "{tavern.env_vars.HOST}/"
+      method: GET
+    response:
+      status_code: 200
+      verify_response_with:
+        function: http_headers:link_in_response_header
+
+---
+# R.1.2.a
+#   A server implementing content negotiation by profile MUST respond with an
+#   HTTP Response header containing a Link header with rel="profile" indicating the profile returned.
+
+# R.1.2.b
+#   URIs referenced in Accept-Profile headers MUST be enclosed in angled brackets, '<' & '>'.
+
+# R.1.2.c - UNTESTED
+#   A range of acceptable profile URIs MAY be supplied, and if they are, they MUST be
+#   delimited by a comma or be in separate Accept-Profile headers.
+
+# R.1.2.d
+#   Preferences MAY be indicated by by the Client using quality indicators (q-values)
+#   as an ordering mechanism separated from the URI by a semi-colon, ';'.
+#   An example of a URI (in this case a URN) with a q-value is <urn:example:profile:x>;q=1.0,
+#   where the URI is <urn:example:profile:x> and the q-value is q=1.0.
+
+test_name: 'R.1.2.a - R.1.2.d: Negotiate using Accept-Profile, q-values and validate Link header'
+marks:
+  - parametrize:
+      key: profile
+      vals:
+        - 'https://www.w3.org/TR/vocab-dcat/'
+        - 'https://schema.org'
+        - 'http://www.w3.org/ns/dx/conneg/altr'
+  - parametrize:
+      key: encoding
+      vals:
+        - 'text/html'
+        - 'text/turtle'
+        - 'application/rdf+xml'
+        - 'application/ld+json'
+        - 'application/n-triples'
+stages:
+  - name: "Request profile and encoding"
+    request:
+      url: "{tavern.env_vars.HOST}/"
+      method: GET
+      headers:
+        accept: "{encoding};q=0.8, application/xml;q=0.5"
+        accept-profile: "<{profile}>;q=1.0"
+    response:
+      status_code: 200
+      verify_response_with:
+        function: http_headers:link_indicates_profile_returned
+        extra_kwargs:
+          requested_profile: "{profile}"
+

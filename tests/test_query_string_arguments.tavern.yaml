@@ -35,23 +35,15 @@ test_name: "Alternative profile 'token' appended to the URI as a Query String Ar
 stages:
   - name: "Check the requested alternative profile(s) are visible"
     request:
-      url: "{tavern.env_vars.HOST}/?_profile=alt"
+      url: "{tavern.env_vars.TEST_HOST}/?_profile=alt"
       method: GET
     response:
       status_code: 200
       verify_response_with:
-        function: query_string_arguments:check_existance_of_alternatives
+        function: validate:check_existance_of_alternatives
         extra_kwargs:
-          profiles:
-            - 'https://www.w3.org/TR/vocab-dcat/'
-            - 'https://schema.org'
-            - 'http://www.w3.org/ns/dx/conneg/altr'
-          encodings:
-            - 'text/html'
-            - 'text/turtle'
-            - 'application/rdf+xml'
-            - 'application/ld+json'
-            - 'application/n-triples'
+          profiles: !include supported_profiles.yaml
+          mediatypes: !include supported_mediatypes.yaml
       #save:
       #  $ext:
       #    function: query_string_arguments:extract_qsa_urls
@@ -82,7 +74,7 @@ test_name: "Request Alternative profile as JSON using QSA"
 stages:
   - name: "Retrive alternative profiles as JSON"
     request:
-      url: "{tavern.env_vars.HOST}/?_profile=alt&_mediatype=application/json"
+      url: "{tavern.env_vars.TEST_HOST}/?_profile=alt&_mediatype=application/json"
       method: GET
     response:
       status_code: 200

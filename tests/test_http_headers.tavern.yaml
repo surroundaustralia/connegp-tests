@@ -13,12 +13,12 @@ test_name: "R.1.1.a,b: HTTP Header 'link' is present and conformant"
 stages:
   - name: "Check link header in response"
     request:
-      url: "{tavern.env_vars.HOST}/"
+      url: "{tavern.env_vars.TEST_HOST}/"
       method: GET
     response:
       status_code: 200
       verify_response_with:
-        function: http_headers:link_in_response_header
+        function: validate:link_in_response_header
 
 ---
 # R.1.2.a
@@ -42,30 +42,22 @@ test_name: 'R.1.2.a - R.1.2.d: Negotiate using Accept-Profile, q-values and vali
 marks:
   - parametrize:
       key: profile
-      vals:
-        - 'https://www.w3.org/TR/vocab-dcat/'
-        - 'https://schema.org'
-        - 'http://www.w3.org/ns/dx/conneg/altr'
+      vals: !include supported_profiles.yaml
   - parametrize:
-      key: encoding
-      vals:
-        - 'text/html'
-        - 'text/turtle'
-        - 'application/rdf+xml'
-        - 'application/ld+json'
-        - 'application/n-triples'
+      key: mediatype
+      vals: !include supported_mediatypes.yaml
 stages:
   - name: "Request profile and encoding"
     request:
-      url: "{tavern.env_vars.HOST}/"
+      url: "{tavern.env_vars.TEST_HOST}/"
       method: GET
       headers:
-        accept: "{encoding};q=0.8, application/xml;q=0.5"
+        accept: "{mediatype};q=0.8, application/xml;q=0.5"
         accept-profile: "<{profile}>;q=1.0"
     response:
       status_code: 200
       verify_response_with:
-        function: http_headers:link_indicates_profile_returned
+        function: validate:link_indicates_profile_returned
         extra_kwargs:
           requested_profile: "{profile}"
 

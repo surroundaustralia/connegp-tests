@@ -15,11 +15,11 @@ def pytest_sessionstart(session):
         if required_variable not in os.environ:
             pytest.exit(f"'{required_variable}' was not passed as an envionment variable!")
 
-    (Path() / "tests" / "supported_mediatypes.yaml").write_text(yaml.dump(
+    Path("tests/supported_mediatypes.yaml").write_text(yaml.dump(
       os.environ['TEST_SUPPORTED_MEDIATYPES'].split(',')
     ))
 
-    (Path() / "tests" / "supported_profiles.yaml").write_text(yaml.dump(
+    Path("tests/supported_profiles.yaml").write_text(yaml.dump(
       os.environ['TEST_SUPPORTED_PROFILES'].split(',')
       # If prefix needs to be included:
       #[
@@ -32,9 +32,6 @@ def pytest_sessionstart(session):
     ))
 
 def pytest_sessionfinish(session, exitstatus):
-    for filename in [
-        "supported_mediatypes.yaml",
-        "supported_profiles.yaml"
-    ]:
-        (Path() / "tests" / filename).unlink()
+    Path("tests/supported_mediatypes.yaml").unlink()
+    Path("tests/supported_profiles.yaml").unlink()
 
